@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Next.js
+.next/
+out/
+build/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# ML Models & Datasets (Too large for GitHub)
+models/
+datasets/
+*.pt
+*.pth
+*.safetensors
+*.onnx
+
+# Docker Volumes
+db_data/
+*.rdb
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
