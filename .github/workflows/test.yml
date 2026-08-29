@@ -12,8 +12,9 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: gst_archangel_test
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -38,9 +39,11 @@ jobs:
     - name: Run tests
       working-directory: ./backend
       env:
-        DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gst_archangel_test
+        PYTHONPATH: .
+        DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5433/gst_archangel_test
         REDIS_URL: redis://localhost:6379/0
         JWT_SECRET: testing-secret
         DEMO_MODE: true
       run: |
+        alembic upgrade head
         pytest app/tests -v
