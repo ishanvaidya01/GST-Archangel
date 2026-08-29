@@ -68,7 +68,7 @@ graph TD
 ## SYSTEM ARCHITECTURE
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph Inputs
     B[Bank Statements]
     P[Purchase Invoices]
@@ -93,8 +93,8 @@ flowchart LR
     O5[Audit Trace]
     end
 
-    Inputs --> EX
-    ACT --> Outputs
+    B & P & S & G --> EX
+    ACT --> O1 & O2 & O3 & O4 & O5
 ```
 
 ---
@@ -130,8 +130,9 @@ flowchart LR
 ## KEY FEATURES
 - **Automated Document Ingestion:** Upload bulk Bank Statements and Purchase Invoices.
 - **Intelligent OCR:** Extracts highly accurate structured data from messy PDFs using state-of-the-art vision models.
+- **RAG for Tax Law Validation:** A built-in Retrieval-Augmented Generation (RAG) system checks cases against the latest official GST rules corpus.
 - **Explainable Risk AI:** Every case flagged includes a clear breakdown of the reasoning behind the risk score.
-- **Agentic Workflow:** Real-time visibility into the multi-agent pipeline as it processes your data.
+- **Real-Time Agentic Workflow:** Live WebSockets stream updates to the frontend dashboard, offering real-time visibility into the multi-agent pipeline as it processes your data.
 - **Action-Ready Output:** Automatically generates draft notices and replies for compliance officers to review.
 
 ---
