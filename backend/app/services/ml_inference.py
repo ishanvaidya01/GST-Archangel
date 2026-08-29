@@ -71,7 +71,13 @@ class HybridDocumentExtractor:
         sequence = self.processor.batch_decode(outputs.sequences)[0]
         sequence = sequence.replace(self.processor.tokenizer.eos_token, "").replace(self.processor.tokenizer.pad_token, "")
         
-        return sequence
+        # Parse the sequence into a dictionary using the processor's token2json
+        import re
+        sequence = re.sub(r"(<.*?>)", r" \1 ", sequence, count=1).strip()  # Removes the task start token
+        data_dict = self.processor.token2json(sequence)
+        
+        import json
+        return json.dumps(data_dict)
 
     def process_file(self, file_bytes: bytes, filename: str) -> dict:
         if filename.lower().endswith(".pdf"):
