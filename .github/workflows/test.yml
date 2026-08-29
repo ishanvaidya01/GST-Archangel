@@ -35,8 +35,8 @@ jobs:
       working-directory: ./backend
       env:
         DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/gst_archangel_test
+        REDIS_URL: redis://localhost:6379/0
         JWT_SECRET: testing-secret
-        LLM_API_KEY: fake-key
         DEMO_MODE: true
       run: |
         pytest app/tests -v

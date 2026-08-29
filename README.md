@@ -5,6 +5,12 @@
 
 *An AI accountant that finds GST problems, decides what to do, takes action, and adapts.*
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![Docker Support](https://img.shields.io/badge/docker-ready-blue)](#)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100-teal)](#)
+
 </div>
 
 ---
@@ -115,9 +121,39 @@ flowchart LR
 ## TECHNOLOGY STACK
 
 **Frontend:** Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons  
-**Backend:** FastAPI  
-**AI / Agent Layer:** Specialized autonomous agents for extraction, reconciliation, risk, and decisioning  
-**Data Layer:** Financial documents and structured transaction data  
+**Backend:** FastAPI, Python, SQLAlchemy, PostgreSQL (pgvector), Redis  
+**AI / Agent Layer:** Specialized autonomous agents for extraction, reconciliation, risk, and decisioning (powered by local Donut models)  
+**Data Layer:** Financial documents (PDF, CSV) and structured transaction data  
+
+---
+
+## KEY FEATURES
+- **Automated Document Ingestion:** Upload bulk Bank Statements and Purchase Invoices.
+- **Intelligent OCR:** Extracts highly accurate structured data from messy PDFs using state-of-the-art vision models.
+- **Explainable Risk AI:** Every case flagged includes a clear breakdown of the reasoning behind the risk score.
+- **Agentic Workflow:** Real-time visibility into the multi-agent pipeline as it processes your data.
+- **Action-Ready Output:** Automatically generates draft notices and replies for compliance officers to review.
+
+---
+
+## GETTING STARTED
+
+The entire platform is containerized for a one-click local deployment.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/ishanvaidya01/GST-Archangel.git
+   cd GST-Archangel
+   ```
+
+2. **Start the platform via Docker:**
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the application:**
+   - Frontend Dashboard: `http://localhost:3000`
+   - Backend API Docs: `http://localhost:8000/docs`
 
 ---
 
