@@ -38,9 +38,7 @@ async def upload_files(
         if len(content) <= 10 * 1024 * 1024:
             pdf_contents.append((pdf.filename, content))
             
-    invs, pdf_errs = parse_invoice_pdfs(pdf_contents)
-    
-    errors = csv_errs + pdf_errs
+    errors = csv_errs
     
     run = Run(
         business_name="Uploaded Run",
@@ -55,10 +53,14 @@ async def upload_files(
         db_tx = Transaction(run_id=run.id, **tx.model_dump())
         db.add(db_tx)
         
-    for inv in invs:
-        db_inv = Invoice(run_id=run.id, **inv.model_dump())
-        db.add(db_inv)
-        
+    # Save PDFs to a temporary directory for the background task
+    if pdf_contents:
+        run_dir = os.path.join("/tmp", f"run_{run.id}")
+        os.makedirs(run_dir, exist_ok=True)
+        for filename, content in pdf_contents:
+            with open(os.path.join(run_dir, filename), "wb") as f:
+                f.write(content)
+                
     await db.commit()
     
     return {"run_id": str(run.id), "status": run.status}

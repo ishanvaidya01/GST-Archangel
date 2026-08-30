@@ -13,6 +13,9 @@ from app.agents.orchestrator import run_pipeline
 from app.core.events import publish_event, AgentEventPayload
 from datetime import datetime, timezone
 import json
+import os
+import shutil
+from app.ingestion.pdf_extractor import parse_single_pdf
 
 logger = structlog.get_logger(__name__)
 
@@ -31,7 +34,49 @@ async def run_full_audit(run_id_str: str):
     ))
     
     try:
+        # Step 1: Extract PDFs if they exist in the temporary directory
+        run_dir = os.path.join("/tmp", f"run_{run_id_str}")
+        extracted_invoices = []
+        if os.path.exists(run_dir):
+            for filename in os.listdir(run_dir):
+                file_path = os.path.join(run_dir, filename)
+                try:
+                    with open(file_path, "rb") as f:
+                        content = f.read()
+                        
+                    # Run PyTorch inference in a thread to not block event loop
+                    inv = await asyncio.to_thread(parse_single_pdf, content, filename)
+                    extracted_invoices.append(inv)
+                    
+                    publish_event(run_id_str, AgentEventPayload(
+                        run_id=run_id_str,
+                        agent_name="DataExtractorAgent",
+                        step="EXTRACTION_SUCCESS",
+                        timestamp=datetime.now(timezone.utc),
+                        message=f"Successfully extracted document: {filename} from visual layout."
+                    ))
+                except Exception as e:
+                    logger.error("pdf_extraction_failed", filename=filename, error=str(e))
+                    publish_event(run_id_str, AgentEventPayload(
+                        run_id=run_id_str,
+                        agent_name="DataExtractorAgent",
+                        step="EXTRACTION_FAILED",
+                        timestamp=datetime.now(timezone.utc),
+                        message=f"Failed to extract {filename}: {str(e)}"
+                    ))
+            
+            # Clean up temporary directory
+            shutil.rmtree(run_dir, ignore_errors=True)
+
         async with async_sessionmaker_factory() as session:
+            # Save extracted invoices to DB
+            for inv in extracted_invoices:
+                db_inv = Invoice(run_id=run_id, **inv.model_dump())
+                session.add(db_inv)
+            
+            if extracted_invoices:
+                await session.flush()
+                
             tx_res = await session.execute(select(Transaction).where(Transaction.run_id == run_id))
             transactions = list(tx_res.scalars().all())
             
