@@ -25,6 +25,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuditSummary } from "@/hooks/useAuditSummary";
 
 interface PipelineStep {
   id: string;
@@ -33,7 +34,7 @@ interface PipelineStep {
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string; size?: number }>;
-  statSummary: string;
+  getStatSummary: (summary: any) => string;
 }
 
 const PIPELINE_STEPS: PipelineStep[] = [
@@ -44,7 +45,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "Document Ingestion & OCR Parsing",
     description: "Extracting structured line items from bank CSVs, purchase PDFs, and sales records.",
     icon: Eye,
-    statSummary: "15 documents parsed, 48 line items indexed",
+    getStatSummary: (s) => `${s?.docs_ingested ?? 0} documents parsed, ${s?.tx_ingested ?? 0} line items indexed`,
   },
   {
     id: "think",
@@ -53,7 +54,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "GSTIN Validation & Semantic Mapping",
     description: "Validating active GSTINs, verifying HSN codes, and standardizing tax rates (18%, 12%, 5%).",
     icon: Brain,
-    statSummary: "100% GSTIN verification complete",
+    getStatSummary: () => "100% GSTIN verification complete",
   },
   {
     id: "reconcile",
@@ -62,7 +63,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "3-Way Transaction Reconciliation",
     description: "Matching bank debits against vendor invoices and cross-checking with GSTR-2B filings.",
     icon: RefreshCw,
-    statSummary: "19 matches verified, 6 discrepancies detected",
+    getStatSummary: (s) => `${s?.matched ?? 0} matches verified, ${s?.mismatched ?? 0} discrepancies detected`,
   },
   {
     id: "investigate",
@@ -71,7 +72,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "Supplier Compliance & Anomaly Search",
     description: "Investigating vendor compliance track records, prior notices, and delayed filings.",
     icon: Search,
-    statSummary: "2 vendor notices flagged under Section 143",
+    getStatSummary: (s) => `${s?.high_risk ?? 0} vendor notices flagged under Section 143`,
   },
   {
     id: "analyze_risk",
@@ -80,7 +81,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "Multi-Factor Exposure Modeling",
     description: "Calculating composite risk scores (0-100) and quantifying Input Tax Credit (ITC) at risk.",
     icon: ShieldAlert,
-    statSummary: "₹3,12,500 ITC exposure flagged across 2 High Risk cases",
+    getStatSummary: (s) => `₹${(s?.itc_at_risk_amount ?? 0).toLocaleString('en-IN')} ITC exposure flagged across ${s?.high_risk ?? 0} High Risk cases`,
   },
   {
     id: "decide",
@@ -89,7 +90,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "Policy & Remediation Routing",
     description: "Determining optimal compliance actions: Request Missing Invoice, Reverse ITC, or CA Review.",
     icon: SlidersHorizontal,
-    statSummary: "Optimal remediation actions selected for 6 cases",
+    getStatSummary: (s) => `Optimal remediation actions selected for ${s?.mismatched ?? 0} cases`,
   },
   {
     id: "act",
@@ -98,7 +99,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
     title: "Autonomous Communication Drafting",
     description: "Generating legally compliant draft notices, supplier inquiry letters, and audit logs.",
     icon: Send,
-    statSummary: "Action previews ready for human sign-off",
+    getStatSummary: () => "Action previews ready for human sign-off",
   },
 ];
 
@@ -121,6 +122,7 @@ export default function AuditProcessingPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [startTime] = useState(Date.now());
+  const { summary, refresh: refreshSummary } = useAuditSummary(runId);
 
   useEffect(() => {
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -149,6 +151,9 @@ export default function AuditProcessingPage() {
         };
 
         setLogs((prev) => [...prev, newLog]);
+        
+        // Refresh summary so UI numbers tick up live!
+        refreshSummary();
 
         // Advance active step visually if we match an agent
         const stepIdx = PIPELINE_STEPS.findIndex(p => p.agentName === data.agent_name);
@@ -227,26 +232,6 @@ export default function AuditProcessingPage() {
 
         {/* Controls & Theme Toggle */}
         <div className="flex items-center gap-3">
-          {!isCompleted ? (
-            <button
-              type="button"
-              onClick={handleFastForward}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#151B2B] text-[13px] font-semibold text-[#4F6EF7] dark:text-[#60A5FA] hover:bg-indigo-50/50 dark:hover:bg-[#1E2238] shadow-sm transition-all cursor-pointer"
-            >
-              <Zap size={14} />
-              Fast Forward
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleReplay}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#151B2B] text-[13px] font-semibold text-[#66708A] dark:text-[#94A3B8] hover:text-[#0E1630] dark:hover:text-white shadow-sm transition-all cursor-pointer"
-            >
-              <RefreshCw size={13} />
-              Replay Agent Trace
-            </button>
-          )}
-
           <ThemeToggle />
 
           <Link
@@ -442,7 +427,7 @@ export default function AuditProcessingPage() {
                     {(isDone || isCurrent) && (
                       <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#F8FAFC] dark:bg-[#151B2B] border border-[#E2E8F0] dark:border-[#1E293B] px-2.5 py-1 text-[11.5px] font-medium text-[#404A63] dark:text-[#CBD5E1]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#4F6EF7] dark:bg-[#60A5FA]" />
-                        <span>{step.statSummary}</span>
+                        <span>{step.getStatSummary(summary)}</span>
                       </div>
                     )}
                   </div>
@@ -461,7 +446,7 @@ export default function AuditProcessingPage() {
                   <span>Docs Ingested</span>
                 </div>
                 <p className="font-[Manrope,sans-serif] text-[24px] font-extrabold text-[#0E1630] dark:text-white">
-                  {activeStepIndex > 0 ? "15 / 15" : "0 / 15"}
+                  {summary?.docs_ingested ?? 0}
                 </p>
                 <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
                   100% OCR verified
@@ -474,10 +459,10 @@ export default function AuditProcessingPage() {
                   <span>Matched Items</span>
                 </div>
                 <p className="font-[Manrope,sans-serif] text-[24px] font-extrabold text-[#0E1630] dark:text-white">
-                  {activeStepIndex >= 3 ? "19" : "0"}
+                  {summary?.matched ?? 0}
                 </p>
                 <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] mt-0.5">
-                  Across 48 bank debits
+                  Across {summary?.tx_ingested ?? 0} bank debits
                 </p>
               </div>
 
@@ -487,7 +472,7 @@ export default function AuditProcessingPage() {
                   <span>Discrepancies</span>
                 </div>
                 <p className="font-[Manrope,sans-serif] text-[24px] font-extrabold text-amber-600 dark:text-amber-400">
-                  {activeStepIndex >= 3 ? "6" : "0"}
+                  {summary?.mismatched ?? 0}
                 </p>
                 <p className="text-[11px] text-amber-700 dark:text-amber-400/90 font-medium mt-0.5">
                   Missing & unlinked invoices
@@ -500,7 +485,7 @@ export default function AuditProcessingPage() {
                   <span>ITC at Risk</span>
                 </div>
                 <p className="font-[Manrope,sans-serif] text-[24px] font-extrabold text-rose-600 dark:text-rose-400">
-                  {activeStepIndex >= 5 ? "₹3.12L" : "₹0"}
+                  ₹{(summary?.itc_at_risk_amount ?? 0).toLocaleString('en-IN')}
                 </p>
                 <p className="text-[11px] text-rose-700 dark:text-rose-400/90 font-medium mt-0.5">
                   Section 16 exposure

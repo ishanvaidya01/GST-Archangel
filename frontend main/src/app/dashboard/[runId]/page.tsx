@@ -64,8 +64,8 @@ export default function DashboardPage({
   const { summary, loading: summaryLoading } = useAuditSummary(runId);
 
   // Derive KPIs from cases when summary is unavailable
-  const itcAtRisk = summary?.itc_at_risk ?? cases.reduce((s, c) => s + c.amount, 0);
-  const totalTx   = summary?.transactions_scanned ?? cases.length;
+  const itcAtRisk = summary?.itc_at_risk_amount ?? cases.reduce((s, c) => s + c.amount, 0);
+  const totalTx   = summary?.tx_ingested ?? cases.length;
   const matched   = summary?.matched ?? 0;
   const mismatched = summary?.mismatched ?? cases.length;
   const topRiskScore = cases.length > 0 ? Math.max(...cases.map(c => c.risk_score)) : 0;

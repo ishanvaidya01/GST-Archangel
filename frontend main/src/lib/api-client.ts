@@ -16,7 +16,7 @@ import type {
   ApproveActionResponse,
 } from "./api-types";
 
-import { MOCK_AUDIT_SUMMARY } from "./fixtures/audit-summary";
+import { mockAuditSummary } from "./fixtures/audit-summary";
 import { MOCK_CASES, MOCK_CASE_DETAIL } from "./fixtures/cases";
 
 // ─── Config ───────────────────────────────────────────────────────────────────

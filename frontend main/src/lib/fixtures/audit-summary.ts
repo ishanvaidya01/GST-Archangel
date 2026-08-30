@@ -1,18 +1,13 @@
 import { AuditSummary } from "../api-types";
 
-export const MOCK_AUDIT_SUMMARY: AuditSummary = {
-  run_id: "run-2024-08-001",
-  status: "COMPLETE",
-  itc_at_risk: 312500,
-  transactions_scanned: 25,
-  matched: 19,
-  mismatched: 6,
-  high_risk_count: 2,
-  risk_breakdown: {
-    HIGH: 2,
-    MEDIUM: 2,
-    LOW: 2,
-  },
-  created_at: "2024-08-28T08:00:00Z",
-  completed_at: "2024-08-28T08:03:42Z",
+export const mockAuditSummary: AuditSummary = {
+  docs_ingested: 120,
+  tx_ingested: 50,
+  scanned: 170,
+  matched: 161,
+  mismatched: 9,
+  high_risk: 2,
+  medium_risk: 7,
+  low_risk: 0,
+  itc_at_risk_amount: 312500,
 };

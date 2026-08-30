@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 
 from app.db.session import get_db
-from app.db.models import Case, LlmCall, Run
+from app.db.models import Case, LlmCall, Run, Invoice, Transaction
 from app.core.security import get_current_user
 
 router = APIRouter(prefix="/api", tags=["observability"])
@@ -23,14 +23,27 @@ async def get_audit_summary(run_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Case).where(Case.run_id == uuid.UUID(run_id)))
     cases = result.scalars().all()
     
+    tx_count = await db.scalar(select(func.count(Transaction.id)).where(Transaction.run_id == uuid.UUID(run_id)))
+    inv_count = await db.scalar(select(func.count(Invoice.id)).where(Invoice.run_id == uuid.UUID(run_id)))
+    
+    itc_at_risk = 0.0
+    for c in cases:
+        if c.risk_score > 0:
+            tx = await db.get(Transaction, c.transaction_id) if c.transaction_id else None
+            inv = await db.get(Invoice, c.invoice_id) if c.invoice_id else None
+            amount = float(tx.amount) if tx else (float(inv.total) if inv else 0.0)
+            itc_at_risk += amount
+    
     summary = {
+        "docs_ingested": inv_count or 0,
+        "tx_ingested": tx_count or 0,
         "scanned": len(cases),
         "matched": sum(1 for c in cases if c.risk_score == 0),
         "mismatched": sum(1 for c in cases if c.risk_score > 0),
         "high_risk": sum(1 for c in cases if c.risk_score > 70),
         "medium_risk": sum(1 for c in cases if 40 <= c.risk_score <= 70),
         "low_risk": sum(1 for c in cases if 0 < c.risk_score < 40),
-        "itc_at_risk_amount": 0 
+        "itc_at_risk_amount": itc_at_risk 
     }
     
     if redis_client:

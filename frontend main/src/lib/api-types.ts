@@ -46,16 +46,15 @@ export interface RiskBreakdown {
 }
 
 export interface AuditSummary {
-  run_id: string;
-  status: "QUEUED" | "PROCESSING" | "COMPLETE" | "FAILED";
-  itc_at_risk: number;        // in INR
-  transactions_scanned: number;
+  docs_ingested: number;
+  tx_ingested: number;
+  scanned: number;
   matched: number;
   mismatched: number;
-  high_risk_count: number;
-  risk_breakdown: RiskBreakdown;
-  created_at: string;         // ISO 8601
-  completed_at: string | null;
+  high_risk: number;
+  medium_risk: number;
+  low_risk: number;
+  itc_at_risk_amount: number;
 }
 
 // ─── Cases ────────────────────────────────────────────────────────────────────
