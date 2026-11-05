@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible defect in GST Archangel
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do not include secrets, `.env` contents, customer data, or invoice PDFs in this issue.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - Backend API / audit workflow
+        - Frontend dashboard
+        - Document extraction / ML pipeline
+        - Database / migrations
+        - Docker / deployment
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and its impact.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start with docker compose up --build
+        2. Upload this type of CSV...
+        3. Open the run...
+        4. See error...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or error output
+      description: Remove secrets and personal data before pasting.
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Docker or local setup, Python/Node versions, browser.
+      placeholder: "Windows 11, Docker Compose, Chrome 140"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, related issues, or anything else that may help.

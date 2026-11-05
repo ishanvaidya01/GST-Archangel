@@ -1,0 +1,45 @@
+name: Feature request
+description: Propose a focused improvement to GST Archangel
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem before the solution. This project favors small, reviewable changes.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What is missing or difficult today? Who does it affect?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or API you would like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Backend API / workflow
+        - Frontend UX
+        - Document extraction / ML
+        - Data model / migrations
+        - Observability
+        - Documentation / developer experience
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Mockups, references, or implementation notes. Do not include secrets or private data.

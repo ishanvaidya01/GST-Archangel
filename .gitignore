@@ -28,6 +28,18 @@ datasets/
 db_data/
 *.rdb
 
+# Test and tooling artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Local databases
+*.db
+*.sqlite3
+
 # IDE & OS Files
 .vscode/
 .idea/
