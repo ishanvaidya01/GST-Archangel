@@ -12,8 +12,6 @@ out/
 build/
 
 # Environment Variables
-.env
-.env.local
 .env.*.local
 
 # ML Models & Datasets (Too large for GitHub)
@@ -41,7 +39,7 @@ htmlcov/
 *.sqlite3
 
 # IDE & OS Files
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
+config.bat

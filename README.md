@@ -5,6 +5,7 @@
 **GST reconciliation, risk triage, and human-in-the-loop action drafting for finance teams.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Tests](https://img.shields.io/github/actions/workflow/status/ishanvaidya01/GST-Archangel/test.yml?branch=master&label=tests)](https://github.com/ishanvaidya01/GST-Archangel/actions/workflows/test.yml)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
